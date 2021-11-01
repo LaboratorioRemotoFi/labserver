@@ -3,7 +3,7 @@
 class ExamplePractice {
   constructor() {
     this.name = "Practica 1";
-    this.temperature = 0;
+    this.temperature = 10;
     this.resistanceOn = false;
     this.status = "not ready";
 
@@ -27,20 +27,28 @@ class ExamplePractice {
     };
   }
 
-  sendCommand(command) {
+  command(command) {
+    if (this.status === "initializing" && ["i", "o"].includes(command)) {
+      this.status = "ongoing";
+    }
+
     if (command === "i") {
       this.resistanceOn = true;
     } else if (command === "o") {
-      this.ressitenceOn = false;
+      this.resistanceOn = false;
+    } else {
+      return { status: "error", message: "Command not found" };
     }
+
+    return { status: "success" };
   }
 
   init() {
     this.resistanceOn = false;
-    this.state = "reseting";
-    setTimeout(() => {
-      if (this.temperature === 0) {
-        this.state = "ready";
+    this.status = "initializing";
+    setInterval(() => {
+      if (this.status === "initializing" && this.temperature === 0) {
+        this.status = "ready";
       }
     }, 200);
   }

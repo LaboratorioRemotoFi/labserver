@@ -4,12 +4,19 @@
   "description": "Servidor de una práctica para el laboratorio remoto",
   "main": "index.js",
   "scripts": {
+    "dev": "yarn dev-server && yarn dev-client",
+    "dev-server": "nodemon index.js --ignore 'client-webapp/*'",
+    "dev-client": "cd ./client-webapp && yarn react-scripts start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.17.1",
     "socket.io": "^4.3.1"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  }
 }
