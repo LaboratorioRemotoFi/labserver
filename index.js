@@ -19,7 +19,7 @@ const io = new Server(httpServer, {
   },
 });
 
-app.use(express.static(path.join(__dirname, "./client-webapp/build")));
+app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("/", function (req, res) {
   res.status(200);
 });

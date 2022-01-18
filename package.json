@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "description": "Servidor de una práctica para el laboratorio remoto",
   "main": "index.js",
+  "private": true,
+  "workspaces": ["client"],
   "scripts": {
     "dev": "yarn dev-server && yarn dev-client",
-    "dev-server": "nodemon index.js --ignore 'client-webapp/*'",
-    "dev-client": "cd ./client-webapp && yarn react-scripts start",
+    "dev-server": "NODE_ENV=development nodemon index.js --ignore 'client/*'",
+    "dev-client": "cd ./client && yarn react-scripts start",
+    "build-client": "cd ./client && yarn react-scripts build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

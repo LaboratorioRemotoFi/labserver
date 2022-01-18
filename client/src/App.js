@@ -65,7 +65,7 @@ function App() {
         <Box mb={5}>
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Cliente para Laboratorio Remoto
+              Cliente para Laboratorio Remoto, prueba
             </Typography>
             <Chip
               label={websocketConnected ? "Conectado" : "Desconectado"}
