@@ -1,0 +1,69 @@
+subjectId: 1500
+id: 1500-1
+name: Práctica de temperatura
+objective: Que el alumno entienda cómo se generan las gráficas de temperatura en el agua
+commands:
+  - i: Encender resistencia
+  - o: Apagar resistencia
+  - b: Bajar resistencia
+  - s: Subir resistencia
+  - v: Encender ventilador
+  - c: Apagar ventilador
+  - l: Encender bomba de agua
+steps:
+  - Encender resistencia del agua
+  - Anotar el tiempo que se muestra en la pantalla
+  - Esperar a que la temperatura llegue a los 25 grados
+  - Anotar el tiempo
+  - Apagar la resistencia
+  - Esperar a que la temperatura llegue a los 15 grados
+  - Anotar el tiempo
+  - Terminar la práctica
+sensors:
+  temperature:
+    name: Temperatura
+    info: Temperatura del agua
+    units: grados
+  resistancePosition:
+    name: Posición de la resistencia
+    info: Posición de la resistencia
+    labels:
+      0: Dentro de agua
+      1: Fuera de agua
+  waterLevel:
+    name: Nivel de agua
+    info: Nivel de agua dentro del contenedor
+    labels:
+      0: Vacío
+      1: Con agua
+actuators:
+  resistance:
+    name: Resistencia
+    info: Resistencia para calentar el agua
+    labels:
+      false: Apagada
+      true: Encendida
+  resistanceMotor:
+    name: Motor de resistencia
+    info: Motor para subir o bajar la resistencia
+    labels:
+      -1: Bajando
+      0: Apagado
+      1: Subiendo
+  fan:
+    name: Ventilador
+    info: Ventilador para enfríar el agua
+    labels:
+      false: Apagado
+      true: Encendido
+  waterPump:
+    name: Bomba de agua
+    info: Bomba de agua para llenar recipiente
+    labels:
+      false: Apagado
+      true: Llenando de agua
+cameras:
+  - name: Monitor de temperatura
+    url: http://159.223.156.70:8080?action=stream
+    width: 640
+    height: 480

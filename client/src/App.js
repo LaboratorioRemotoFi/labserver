@@ -1,133 +1,115 @@
 import React from "react";
-import { io } from "socket.io-client";
+import CheckIcon from "@mui/icons-material/Check";
+import ClearIcon from "@mui/icons-material/Clear";
+import useSocket from "./hooks/useSocket";
+import PracticePage from "./PracticePage";
 import {
+  AppBar,
   Box,
   Button,
   Container,
-  Chip,
-  Paper,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
+  Input,
+  Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
 
-const socket = io("http://localhost:8000");
+function SetupPage({ isConnected, connect, errorMessage }) {
+  const [user, setUser] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [serverIp, setServerIp] = React.useState("localhost:8000");
+
+  return (
+    <Stack spacing={2} alignItems="flex-start">
+      <Typography>
+        Colocar el puerto de la práctica e iniciar conexión.
+      </Typography>
+      <Input
+        placeholder="Usuario"
+        variant="standard"
+        value={user}
+        onChange={(e) => {
+          setUser(e.target.value);
+        }}
+      />
+      <Input
+        placeholder="Contraseña"
+        variant="standard"
+        value={password}
+        onChange={(e) => {
+          setPassword(e.target.value);
+        }}
+      />
+      <Input
+        placeholder="192.168.1.100:8000"
+        variant="standard"
+        value={serverIp}
+        onChange={(e) => {
+          setServerIp(e.target.value);
+        }}
+      />
+      <Button
+        variant="contained"
+        onClick={() => connect(serverIp, user, password)}
+        disabled={isConnected && !errorMessage}
+      >
+        {errorMessage
+          ? "Reintentar conexión"
+          : isConnected
+          ? "Configurando ..."
+          : "Iniciar conexión"}
+      </Button>
+      {errorMessage && (
+        <Typography sx={{ color: "error.main" }}>{errorMessage}</Typography>
+      )}
+    </Stack>
+  );
+}
 
 function App() {
-  const [websocketConnected, setWebsocketConnected] = React.useState(false);
-  const [data, setData] = React.useState({});
-  const [messageText, setMessageText] = React.useState("");
-  const [messageStatus, setMessageStatus] = React.useState("");
-  const [command, setCommand] = React.useState("");
-
-  const commandInput = React.useRef();
-
-  React.useEffect(() => {
-    socket.on("connect", () => {
-      setWebsocketConnected(true);
-    });
-
-    socket.io.on("reconnect", () => {
-      setWebsocketConnected(true);
-    });
-
-    socket.on("disconnect", () => {
-      setWebsocketConnected(false);
-    });
-
-    socket.on("data", (newData) => {
-      setData(newData);
-    });
-
-    socket.on("message", (newMessage) => {
-      setMessageStatus(newMessage.messageStatus);
-      setMessageText(newMessage.messageText);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  const sendCommand = () => {
-    socket.emit("command", command);
-    setCommand("");
-  };
+  const {
+    socket,
+    isConnected,
+    connect,
+    metadata,
+    errorMessage,
+    practiceStatus,
+    sensorsData,
+    actuatorsStatus,
+  } = useSocket();
 
   return (
     <div>
-      <Container>
-        <Box mb={5}>
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Cliente para Laboratorio Remoto, prueba
-            </Typography>
-            <Chip
-              label={websocketConnected ? "Conectado" : "Desconectado"}
-              color={websocketConnected ? "success" : "error"}
-              variant="outlined"
-            />
-          </Toolbar>
-        </Box>
-        <Typography variant="h2">Práctica de temperatura</Typography>
-        <Box sx={{ my: 4 }}>
-          <Typography variant="h4"></Typography>
-          <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-            <TextField
-              sx={{ marginRight: 2 }}
-              id="standard-basic"
-              label="Comando"
-              variant="standard"
-              ref={commandInput}
-              value={command}
-              onChange={(e) => {
-                setCommand(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.keyCode === 13) {
-                  sendCommand();
-                }
-              }}
-            />
-            <Button size="small" variant="contained" onClick={sendCommand}>
-              Enviar
-            </Button>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Cliente para Laboratorio Remoto
+          </Typography>
+          <Box mr={1} alignItems="center">
+            {isConnected ? <CheckIcon /> : <ClearIcon />}
           </Box>
-          {messageText && (
-            <Paper
-              variant="outlined"
-              sx={{ padding: 2, marginTop: 2, marginBottom: 2 }}
-            >
-              <Typography>{messageText}</Typography>
-            </Paper>
-          )}
-        </Box>
-        <Typography variant="h4">Datos</Typography>
-        <Box sx={{ my: 4 }}>
-          <TableContainer sx={{ maxWidth: 700 }}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableBody>
-                {Object.keys(data).map((key) => (
-                  <TableRow
-                    key={key}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {key}
-                    </TableCell>
-                    <TableCell align="right">{data[key]}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-        <Typography variant="h4">Vídeos</Typography>
+          <Typography variant="h6" component="div">
+            {isConnected ? "Conectado" : "Desconectado"}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container sx={{ paddingTop: 2 }}>
+        {isConnected && metadata ? (
+          <PracticePage
+            socket={socket}
+            metadata={metadata}
+            practiceStatus={practiceStatus}
+            sensorsData={sensorsData}
+            actuatorsStatus={actuatorsStatus}
+            errorMessage={errorMessage}
+          />
+        ) : (
+          <SetupPage
+            connect={connect}
+            isConnected={isConnected}
+            errorMessage={errorMessage}
+          />
+        )}
       </Container>
     </div>
   );
