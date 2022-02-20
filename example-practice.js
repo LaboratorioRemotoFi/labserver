@@ -162,7 +162,7 @@ class ExamplePractice {
 
   init() {
     this.actuators.resistance = false;
-    this.sensors.temperature = 25;
+    this.sensors.temperature = 15;
     this.status = "initializing";
 
     const checkInitialState = () => {

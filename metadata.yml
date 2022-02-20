@@ -2,23 +2,28 @@ subjectId: 1500
 id: 1500-1
 name: Práctica de temperatura
 objective: Que el alumno entienda cómo se generan las gráficas de temperatura en el agua
-commands:
-  - i: Encender resistencia
-  - o: Apagar resistencia
-  - b: Bajar resistencia
-  - s: Subir resistencia
-  - v: Encender ventilador
-  - c: Apagar ventilador
-  - l: Encender bomba de agua
-steps:
-  - Encender resistencia del agua
-  - Anotar el tiempo que se muestra en la pantalla
-  - Esperar a que la temperatura llegue a los 25 grados
-  - Anotar el tiempo
-  - Apagar la resistencia
-  - Esperar a que la temperatura llegue a los 15 grados
-  - Anotar el tiempo
-  - Terminar la práctica
+actions:
+  resistanceOn:
+    name: Encender resistencia
+    command: i
+  resistanceOff:
+    name: Apagar resistencia
+    command: o
+  resistanceDown:
+    name: Bajar resistencia
+    command: b
+  resistanceUp:
+    name: Subir resistencia
+    command: s
+  fanOn:
+    name: Encender ventilador
+    command: v
+  fanOff:
+    name: Apagar ventilador
+    command: c
+  pumpOn:
+    name: Encender bomba de agua
+    command: l
 sensors:
   temperature:
     name: Temperatura
@@ -67,3 +72,44 @@ cameras:
     url: http://159.223.156.70:8080?action=stream
     width: 640
     height: 480
+pages:
+  - instructions:
+      - Verificar que el nivel del agua sea "Con Agua"
+      - En caso de que que esté vacío "Encender bomba de agua"
+      - Esperar a que el estado cambie a "Con Agua"
+    sensors:
+      - waterLevel
+    actuators:
+      - waterPump
+    actions:
+      - pumpOn
+  - instructions:
+      - Verificar la posición de la resistencia
+      - En caso de estar fuera del recipiente "Bajar resistencia"
+      - Esperar a que el estado esté dentro del recipiente
+    sensors:
+      - resistancePosition
+    actuators:
+      - resistanceMotor
+    actions:
+      - resistanceDown
+  - instructions:
+      - Encender resistencia
+      - Esperar que la temperatura llegue a X
+      - Apagar la resistencia
+    sensors:
+      - temperature
+    actuators:
+      - resistance
+    actions:
+      - resistanceOn
+      - resistanceOff
+  - instructions:
+      - Encender ventiladores
+      - Tomar nota de la temperatura y del tiempo hasta que el reloj finalice
+    sensors:
+      - temperature
+    actuators:
+      - fan
+    actions:
+      - fanOn
