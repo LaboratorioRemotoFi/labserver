@@ -23,15 +23,25 @@ const io = new Server(httpServer, {
 
 const STATUS = {
   WAITING: "WAITING",
-  CONFIGURING: "CONFIGURING",
   CONNECTED: "CONNECTED",
-  ERROR: "ERROR",
 };
 
 let currentStatus = STATUS.WAITING;
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("new socket connection");
+
+  const connections = await io.fetchSockets();
+  if (connections.length > 1) {
+    console.log(
+      "connection rejected: can't have more than one connection at the same time"
+    );
+    socket.emit("setup", {
+      status: "error",
+      message: "No se puede tener más de una conexión al mismo tiempo",
+    });
+    socket.disconnect();
+  }
 
   setInterval(() => {
     socket.emit("updatePracticeData", {

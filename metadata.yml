@@ -5,25 +5,18 @@ objective: Que el alumno entienda cómo se generan las gráficas de temperatura 
 actions:
   resistanceOn:
     name: Encender resistencia
-    command: i
   resistanceOff:
     name: Apagar resistencia
-    command: o
   resistanceDown:
     name: Bajar resistencia
-    command: b
   resistanceUp:
     name: Subir resistencia
-    command: s
   fanOn:
     name: Encender ventilador
-    command: v
   fanOff:
     name: Apagar ventilador
-    command: c
   pumpOn:
     name: Encender bomba de agua
-    command: l
 sensors:
   temperature:
     name: Temperatura

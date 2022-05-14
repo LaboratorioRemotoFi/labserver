@@ -1,5 +1,3 @@
-// Estados: initializing, ongoing, error
-
 class ExamplePractice {
   constructor() {
     this.status = "not ready";
@@ -108,7 +106,7 @@ class ExamplePractice {
     let errorMessage = "";
 
     switch (command) {
-      case "i":
+      case "resistanceOn":
         if (this.sensors.waterLevel === 0) {
           return {
             status: "error",
@@ -123,13 +121,13 @@ class ExamplePractice {
         }
         this.actuators.resistance = true;
         break;
-      case "o":
+      case "resistanceOff":
         this.actuators.resistance = false;
         break;
-      case "b": // bajar resistencia
+      case "resistanceDown": // bajar resistencia
         this.actuators.resistanceMotor = -1;
         break;
-      case "s": // subir resistencia
+      case "resistanceUp": // subir resistencia
         if (this.actuators.resistance === true) {
           return {
             status: "error",
@@ -138,13 +136,13 @@ class ExamplePractice {
         }
         this.actuators.resistanceMotor = 1;
         break;
-      case "v": // encender ventilador
+      case "fanOn": // encender ventilador
         this.actuators.fan = true;
         break;
-      case "c": // apagar ventilador
+      case "fanOff": // apagar ventilador
         this.actuators.fan = false;
         break;
-      case "l": // encender bomba
+      case "pumpOn": // encender bomba
         if (this.sensors.waterLevel === 1) {
           return {
             status: "warning",
