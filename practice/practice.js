@@ -4,16 +4,20 @@ class ExamplePractice {
 
     this.waterLevelDetail = 0;
     this.resistancePositionDetail = 0;
+    this.finalPosition = 0;
 
     this.sensors = {
       temperature: 25,
       resistancePosition: 0,
       waterLevel: 0,
+      position: 0,
+      selectedSensor: "",
     };
 
     this.actuators = {
       resistance: false,
       resistanceMotor: 0,
+      positionMotor: 0,
       waterPump: false,
       fan: false,
     };
@@ -76,6 +80,14 @@ class ExamplePractice {
         this.sensors.temperature -= 0.5;
       }
 
+      // Position logic
+      const positionDelta = this.sensors.position - this.finalPosition;
+      if (Math.abs(positionDelta) < 3) {
+        this.sensors.position = this.finalPosition;
+      } else {
+        this.sensors.position -= positionDelta / 2;
+      }
+
       if (this.actuators.fan) {
         this.sensors.temperature -= 0.1;
       }
@@ -94,7 +106,7 @@ class ExamplePractice {
     return this.actuators;
   }
 
-  command(command) {
+  command(command, value) {
     if (this.status === "initializing") {
       return {
         status: "error",
@@ -150,6 +162,12 @@ class ExamplePractice {
           };
         }
         this.actuators.waterPump = true;
+        break;
+      case "positionSelector":
+        this.finalPosition = value;
+        break;
+      case "selectSensor":
+        this.sensors.selectedSensor = value;
         break;
       default:
         return { status: "error", message: "Command not found" };

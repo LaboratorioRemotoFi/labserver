@@ -1,14 +1,10 @@
-import Practice from "./example-practice.js";
+import Practice from "./practice/practice.js";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { fileURLToPath } from "url";
-import path, { dirname } from "path";
+import path from "path";
 import yaml from "js-yaml";
 import fs from "fs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const practice = new Practice();
 practice.init();
@@ -20,13 +16,6 @@ const io = new Server(httpServer, {
     origin: "*",
   },
 });
-
-const STATUS = {
-  WAITING: "WAITING",
-  CONNECTED: "CONNECTED",
-};
-
-let currentStatus = STATUS.WAITING;
 
 io.on("connection", async (socket) => {
   console.log("new socket connection");
@@ -55,7 +44,10 @@ io.on("connection", async (socket) => {
     if (data.user === "admin" && data.password === "admin") {
       try {
         const doc = yaml.load(
-          fs.readFileSync(path.join(__dirname, "./metadata.yml"), "utf-8")
+          fs.readFileSync(
+            path.join(__dirname, "./practice/metadata.yml"),
+            "utf-8"
+          )
         );
         socket.emit("setup", { status: "success", data: doc });
         practice.init();
@@ -73,8 +65,9 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("command", (command) => {
-    const result = practice.command(command);
+  socket.on("command", (command, value) => {
+    console.log("Command received", { command, value });
+    const result = practice.command(command, value);
     if (result.status === "error") {
       socket.emit("message", {
         status: "error",
@@ -85,6 +78,10 @@ io.on("connection", async (socket) => {
         status: "success",
       });
     }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected");
   });
 });
 

@@ -1,7 +1,5 @@
-subjectId: 1500
-id: 1500-1
-name: Práctica de temperatura
-objective: Que el alumno entienda cómo se generan las gráficas de temperatura en el agua
+name: Enfriamiento de Newton
+objective: Que el alumno entienda el comportamiento de la temperatura en un objeto al enfriarse y compare con la ley de Newton.
 actions:
   resistanceOn:
     name: Encender resistencia
@@ -17,6 +15,20 @@ actions:
     name: Apagar ventilador
   pumpOn:
     name: Encender bomba de agua
+  positionSelector:
+    name: Posición de la placa
+    type: slider
+    minValue: 0
+    maxValue: 100
+    step: 1
+  selectSensor:
+    name: Seleccionar un sensor
+    type: selector
+    values:
+      sensorA: Sensor A
+      sensorB: Sensor B
+      sensorC: Sensor C
+      sensorD: Sensor D
 sensors:
   temperature:
     name: Temperatura
@@ -34,6 +46,15 @@ sensors:
     labels:
       0: Vacío
       1: Con agua
+  position:
+    name: Posición del motor
+  selectedSensor:
+    name: Sensor seleccionado
+    labels:
+      sensorA: Sensor A
+      sensorB: Sensor B
+      sensorC: Sensor C
+      sensorD: Sensor D
 actuators:
   resistance:
     name: Resistencia
@@ -60,8 +81,9 @@ actuators:
     labels:
       false: Apagado
       true: Llenando de agua
-cameras:
-  - name: Monitor de temperatura
+videos:
+  temperatureVideo:
+    name: Monitor de temperatura
     url: http://159.223.156.70:8080?action=stream
     width: 640
     height: 480
@@ -72,10 +94,14 @@ pages:
       - Esperar a que el estado cambie a "Con Agua"
     sensors:
       - waterLevel
+      - position
+      - selectedSensor
     actuators:
       - waterPump
     actions:
       - pumpOn
+      - positionSelector
+      - selectSensor
   - instructions:
       - Verificar la posición de la resistencia
       - En caso de estar fuera del recipiente "Bajar resistencia"
@@ -86,6 +112,8 @@ pages:
       - resistanceMotor
     actions:
       - resistanceDown
+    videos:
+      - temperatureVideo
   - instructions:
       - Encender resistencia
       - Esperar que la temperatura llegue a X
