@@ -4,28 +4,28 @@
   "description": "Servidor de una práctica para el laboratorio remoto",
   "main": "index.js",
   "private": true,
-  "workspaces": ["client"],
   "scripts": {
-    "dev": "yarn dev-server && yarn dev-client",
-    "dev-server": "NODE_ENV=development nodemon index.js --ignore 'client/*'",
-    "dev-client": "cd ./client && yarn react-scripts start",
-    "build-client": "cd ./client && yarn react-scripts build",
+    "dev": "NODE_ENV=development nodemon index.js",
+    "build": "babel index.js -d dist && babel practice/* -d dist/practice -D",
+    "start": "yarn build && nodemon dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Manuel Lara",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
-    "js-yaml": "^4.1.0",
-    "socket.io": "^4.3.1"
+    "@babel/cli": "~7",
+    "@babel/core": "~7",
+    "@babel/preset-env": "~7",
+    "express": "~4",
+    "js-yaml": "~4",
+    "socket.io": "~4"
   },
-  "type": "module",
   "devDependencies": {
-    "eslint": "^8.8.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-react": "^7.28.0",
-    "nodemon": "^2.0.14",
-    "prettier": "2.5.1"
+    "eslint": "~8",
+    "eslint-config-prettier": "~8",
+    "eslint-plugin-import": "~2",
+    "eslint-plugin-react": "~7",
+    "nodemon": "~2",
+    "prettier": "~2"
   }
 }
