@@ -1,10 +1,8 @@
 import Practice from "./practice/practice.js";
+import metadata from "./practice/metadata.yml";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import path from "path";
-import yaml from "js-yaml";
-import fs from "fs";
 
 const practice = new Practice();
 practice.init();
@@ -43,13 +41,7 @@ io.on("connection", async (socket) => {
   socket.on("setup", (data) => {
     if (data.user === "admin" && data.password === "admin") {
       try {
-        const doc = yaml.load(
-          fs.readFileSync(
-            path.join(__dirname, "./practice/metadata.yml"),
-            "utf-8"
-          )
-        );
-        socket.emit("setup", { status: "success", data: doc });
+        socket.emit("setup", { status: "success", data: metadata });
         practice.init();
       } catch (e) {
         socket.emit("setup", {
