@@ -4,9 +4,9 @@ import run from "@rollup/plugin-run";
 const dev = process.env.ROLLUP_WATCH === "true";
 
 export default {
-  input: "index.js",
+  input: "src/index.js",
   output: {
-    dir: "dist",
+    file: "dist/bundle.js",
     format: "cjs",
   },
   plugins: [yaml(), dev && run()],
