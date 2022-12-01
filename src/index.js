@@ -4,6 +4,8 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
+const dataIds = Object.keys(metadata.data);
+
 const practice = new Practice();
 practice.init();
 
@@ -31,18 +33,27 @@ io.on("connection", async (socket) => {
   }
 
   setInterval(() => {
+    const dataValues = dataIds.reduce(
+      (previous, dataId) => ({
+        ...previous,
+        [dataId]: practice[dataId],
+      }),
+      {}
+    );
+
     socket.emit("updatePracticeData", {
-      status: practice.getStatus(),
-      sensors: practice.getSensorsData(),
-      actuators: practice.getActuatorsStatus(),
+      status: practice.status,
+      dataValues,
     });
   }, 500);
 
-  socket.on("setup", (data) => {
-    if (data.user === "admin" && data.password === "admin") {
+  socket.on("setup", ({ user, password, initialize }) => {
+    if (user === "admin" && password === "admin") {
       try {
-        socket.emit("setup", { status: "success", data: metadata });
-        practice.init();
+        socket.emit("setup", { status: "success", metadata });
+        if (initialize) {
+          practice.init();
+        }
       } catch (e) {
         socket.emit("setup", {
           status: "error",

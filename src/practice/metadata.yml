@@ -1,86 +1,32 @@
 name: Enfriamiento de Newton
 objective: Que el alumno entienda el comportamiento de la temperatura en un objeto al enfriarse y compare con la ley de Newton.
 actions:
-  resistanceOn:
-    name: Encender resistencia
-  resistanceOff:
-    name: Apagar resistencia
-  resistanceDown:
-    name: Bajar resistencia
-  resistanceUp:
-    name: Subir resistencia
-  fanOn:
-    name: Encender ventilador
-  fanOff:
-    name: Apagar ventilador
-  pumpOn:
-    name: Encender bomba de agua
-  positionSelector:
-    name: Posición de la placa
+  ledOn:
+    name: Encender el led
+  ledOff:
+    name: Apagar el led
+  ledStatus:
+    name: Encender / Apagar Led
+    type: toggle
+  pwmSlider:
+    name: PWM Led slider
     type: slider
     minValue: 0
-    maxValue: 100
+    maxValue: 1024
     step: 1
-  selectSensor:
-    name: Seleccionar un sensor
-    type: selector
-    values:
-      sensorA: Sensor A
-      sensorB: Sensor B
-      sensorC: Sensor C
-      sensorD: Sensor D
-sensors:
-  temperature:
-    name: Temperatura
-    info: Temperatura del agua
-    units: grados
-  resistancePosition:
-    name: Posición de la resistencia
-    info: Posición de la resistencia
+  unkownCommand:
+    name: Comando desconocido
+data:
+  ledStatus:
+    name: Estado del led
     labels:
-      0: Dentro de agua
-      1: Fuera de agua
-  waterLevel:
-    name: Nivel de agua
-    info: Nivel de agua dentro del contenedor
-    labels:
-      0: Vacío
-      1: Con agua
-  position:
-    name: Posición del motor
-  selectedSensor:
-    name: Sensor seleccionado
-    labels:
-      sensorA: Sensor A
-      sensorB: Sensor B
-      sensorC: Sensor C
-      sensorD: Sensor D
-actuators:
-  resistance:
-    name: Resistencia
-    info: Resistencia para calentar el agua
-    labels:
-      false: Apagada
-      true: Encendida
-  resistanceMotor:
-    name: Motor de resistencia
-    info: Motor para subir o bajar la resistencia
-    labels:
-      -1: Bajando
       0: Apagado
-      1: Subiendo
-  fan:
-    name: Ventilador
-    info: Ventilador para enfríar el agua
-    labels:
-      false: Apagado
-      true: Encendido
-  waterPump:
-    name: Bomba de agua
-    info: Bomba de agua para llenar recipiente
-    labels:
-      false: Apagado
-      true: Llenando de agua
+      1: Encendido
+  pwmLedValue:
+    name: Valor de PWM del led
+    units: grados
+  otherData:
+    name: Other data
 videos:
   temperatureVideo:
     name: Monitor de temperatura
@@ -89,48 +35,23 @@ videos:
     height: 480
 pages:
   - instructions:
-      - Verificar que el nivel del agua sea "Con Agua"
-      - En caso de que que esté vacío "Encender bomba de agua"
-      - Esperar a que el estado cambie a "Con Agua"
-    sensors:
-      - waterLevel
-      - position
-      - selectedSensor
-    actuators:
-      - waterPump
-    actions:
-      - pumpOn
-      - positionSelector
-      - selectSensor
-  - instructions:
-      - Verificar la posición de la resistencia
-      - En caso de estar fuera del recipiente "Bajar resistencia"
-      - Esperar a que el estado esté dentro del recipiente
-    sensors:
-      - resistancePosition
-    actuators:
-      - resistanceMotor
-    actions:
-      - resistanceDown
-    videos:
+      - Enciende y apaga el LED
+    dataIds:
+      - ledStatus
+      - pwmLedValue
+    actionIds:
+      - ledOn
+      - ledOff
+      - unkownCommand
+    videoIds:
       - temperatureVideo
   - instructions:
-      - Encender resistencia
-      - Esperar que la temperatura llegue a X
-      - Apagar la resistencia
-    sensors:
-      - temperature
-    actuators:
-      - resistance
-    actions:
-      - resistanceOn
-      - resistanceOff
-  - instructions:
-      - Encender ventiladores
-      - Tomar nota de la temperatura y del tiempo hasta que el reloj finalice
-    sensors:
-      - temperature
-    actuators:
-      - fan
-    actions:
-      - fanOn
+      - Enciende y apaga el LED 2
+    dataIds:
+      - ledStatus
+      - pwmLedValue
+    actionIds:
+      - ledStatus
+      - pwmSlider
+    videoIds:
+      - temperatureVideo

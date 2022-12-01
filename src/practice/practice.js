@@ -1,107 +1,63 @@
 // Importar bibliotecas de conexión con la práctica física o serial para arduino
-// import gpio from "rpi-gpio";
-// gpio.setup(12, gpio.DIR_OUT, off);
+var rpio = require("rpio");
+// Necesario para poder usar PWM, también el programa debe ser ejecutado como root
+rpio.init({ gpiomem: false });
 
-// pin 12 led
-// pin 13 encender el motor
-// pin 14 switch izquierdo del motor
-// pin 15 switch derecho del motor
+const TURN_EVERYTHING_OFF_PIN = 5;
+const LED_PIN = 3;
+const PWM_LED_PIN = 12;
 
-function on() {
-  /* gpio.write(12, true, function (err) {
-   *   if (err) throw err;
-   *   console.log("Written to pin");
-   * }); */
-}
+// Configuración de entradas y salidas
+rpio.open(TURN_EVERYTHING_OFF_PIN, rpio.INPUT);
+rpio.open(LED_PIN, rpio.OUTPUT, rpio.LOW);
+rpio.open(PWM_LED_PIN, rpio.PWM);
 
-function off() {
-  /* gpio.write(12, false, function (err) {
-   *   if (err) throw err;
-   *   console.log("Written to pin");
-   * }); */
-}
+// Configuración de pwm
+rpio.pwmSetClockDivider(8);
+rpio.pwmSetRange(PWM_LED_PIN, 1024);
 
 class ExamplePractice {
   constructor() {
-    // Estado de la práctica
     this.status = "not ready";
 
-    // Variables auxiliares
-    this.motorPosition = 0; // -100 <-> 100, son 200 pero en pasos pueden ser 400
+    // Variables de ayuda
+    this.pwmLedValue = 0;
+    this.ledStatus = 0;
 
-    // Definición de sensores
-    this.sensors = {
-      led: false,
-      motorInLeftSwitch: 0,
-      motorInRightSwitch: 0,
-    };
-
-    // Definición de actuadores
-    this.actuators = {};
-
-    // Comandos iniciales
-    off();
+    this.emergencyButtonState = false;
 
     // lectura de variables y lógica, similar al loop de arduino
     setInterval(() => {
-      /* this.sensors.motorInLeftSwitch = gpio.read(14);
-       * this.sensors.motorInRightSwitch = gpio.read(15);
-       * this.sensors.waterLevel = gpio.read(18); */
-
-      if (this.sensors.waterLevel == 0) {
-        this.turnResistanceOff();
-      }
-
-      if (this.sensors.motorInLeftSwitch) {
-        this.turnMotorOff();
-        this.motorPosition = -100;
-      }
-
-      if (this.sensors.motorInRightSwitch) {
-        this.turnMotorOff();
-        this.motorPosition = 100;
+      // Agregar verificación de gpio y acciones acordes
+      this.emergencyButtonState = this.readEmergencyStopButton();
+      if (this.emergencyButtonState) {
+        this.ledOff();
+        this.setPWMLedValue(0);
       }
     }, 10);
   }
 
-  turnMotorRightSteps(n) {
-    this.sensors.motorPosition += n;
-    /* gpio.write(13, true, function (err) {
-     *   if (err) throw err;
-     *   console.log("Written to pin");
-     * }); */
+  // Funciones de ayuda
+  ledOn() {
+    rpio.write(LED_PIN, rpio.HIGH);
+    this.ledStatus = 1;
   }
 
-  turnMotorLeftSteps(n) {
-    this.sensors.motorPosition -= n;
-    /* gpio.write(13, true, function (err) {
-     *   if (err) throw err;
-     *   console.log("Written to pin");
-     * }); */
+  ledOff() {
+    rpio.write(LED_PIN, rpio.LOW);
+    this.ledStatus = 0;
   }
 
-  turnMotorOff() {
-    gpio.write(13, false, function (err) {
-      if (err) throw err;
-      console.log("Written to pin");
-    });
+  setPWMLedValue(value) {
+    rpio.pwmSetData(PWM_LED_PIN, value);
+    this.pwmLedValue = value;
   }
 
-  // No tocar
-  getStatus() {
-    return this.status;
+  readEmergencyStopButton() {
+    return rpio.read(TURN_EVERYTHING_OFF_PIN);
   }
 
-  // No tocar
-  getSensorsData() {
-    return this.sensors;
-  }
-
-  // No tocar
-  getActuatorsStatus() {
-    return this.actuators;
-  }
-
+  // Se definen las acciones para cada comando
   command(command, value) {
     if (this.status === "initializing") {
       return {
@@ -111,31 +67,37 @@ class ExamplePractice {
       };
     }
 
-    let errorMessage = "";
-    let pasos;
+    if (this.emergencyButtonState) {
+      return {
+        status: "error",
+        message:
+          "No se puede recibir ningún comando mientras el botón de emergencia esté presionado",
+      };
+    }
 
     // Agregar acciones
     switch (command) {
       case "ledOn":
-        on();
+        this.ledOn();
         break;
       case "ledOff":
-        off();
+        this.ledOff();
         break;
-      case "motorPosition":
-        // Calculos para determinar los pasos
-        // Valor de los pasos a moverse
-        pasos = this.motorPosition - 20;
-        if (pasos < 0) {
-          this.turnMotorLeftSteps(pasos);
-        } else if (pasos > 0) {
-          this.turnMotorRightSteps(pasos);
-        } else {
-          this.turnMotorOff();
+      case "ledStatus":
+        if (value === true) {
+          this.ledOn();
+        } else if (value === false) {
+          this.ledOff();
         }
         break;
+      case "pwmSlider":
+        this.setPWMLedValue(value);
+        break;
       default:
-        return { status: "error", message: "Command not found" };
+        return {
+          status: "error",
+          message: `No se reconoce el comando ${command}`,
+        };
     }
 
     return { status: "success" };
@@ -147,21 +109,10 @@ class ExamplePractice {
     // estado de la práctica a 'initializing' y mando los comandos para que esté en
     // el estado inicial
 
-    off();
-    this.turnMotorLeftSteps(-300);
-    this.status = "ready";
+    this.ledOff();
+    this.setPWMLedValue(0);
 
-    /* const checkInitialState = () => {
-     *   setTimeout(() => {
-     *     if (this.sensors.led !== 0) {
-     *       this.status = "initializing";
-     *       checkInitialState();
-     *     } else if (this.sensor.led === 0) {
-     *       this.status = "ready";
-     *     }
-     *   }, 200);
-     * }; */
-    // checkInitialState();
+    this.status = "ready";
   }
 }
 
